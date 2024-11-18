@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Profile Setup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            color: rgb(173, 25, 244);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 1.8rem;
+            background-color: rgb(246, 230, 255);
+            padding: 15px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        h1:hover {
+            background-color: rgb(238, 209, 255);
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .option {
+            background: rgb(246, 230, 255);
+            padding: 1.2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 2px solid transparent;
+        }
+
+        .option:hover {
+            background: rgb(238, 209, 255);
+            transform: translateY(-2px);
+        }
+
+        .option.selected {
+            background: rgb(173, 25, 244);
+            color: white;
+        }
+
+        .option-icon {
+            font-size: 1.5rem;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .option-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .selected-count {
+            text-align: center;
+            color: rgb(173, 25, 244);
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .nav-button {
+            background: rgb(173, 25, 244);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .nav-button:hover {
+            background: rgb(238, 209, 255);
+            color: rgb(173, 25, 244);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .textarea-container {
+            margin-top: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgb(246, 230, 255);
+            border-radius: 8px;
+            min-height: 150px;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: rgb(173, 25, 244);
+        }
+
+        .slide {
+            display: none;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgb(246, 230, 255);
+            margin-bottom: 2rem;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: rgb(173, 25, 244);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <!-- Slide 1: Share Preferences -->
+        <div class="slide active" id="slide1">
+            <h1>What do you like to share on LinkedIn?</h1>
+            <div class="selected-count">Select your preferences</div>
+            <div class="options-container" id="sharePreferences">
+                <!-- Options will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Slide 2: Why Share -->
+        <div class="slide" id="slide2">
+            <h1>Why do you share on LinkedIn?</h1>
+            <div class="selected-count">Select your reasons</div>
+            <div class="options-container" id="shareReasons">
+                <!-- Options will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Slide 3: Writing Skills -->
+        <div class="slide" id="slide3">
+            <h1>What's your writing skill level?</h1>
+            <div class="selected-count">Select your skill level</div>
+            <div class="options-container" id="writingSkills">
+                <!-- Options will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Slide 4: Industry -->
+        <div class="slide" id="slide4">
+            <h1>What's your industry?</h1>
+            <div class="selected-count">Select your industry</div>
+            <div class="options-container" id="industries">
+                <!-- Options will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Slide 5: Job Description -->
+        <div class="slide" id="slide5">
+            <h1>What's your job description?</h1>
+            <div class="selected-count">Select your role</div>
+            <div class="options-container" id="jobDescriptions">
+                <!-- Options will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button class="nav-button" id="prevButton" onclick="previousSlide()" style="display: none;">Previous</button>
+            <button class="nav-button" id="nextButton" onclick="nextSlide()">Next</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuration object containing all options for different slides
+        const config = {
+            sharePreferences: [
+                { icon: '💼', text: 'Professional Updates' },
+                { icon: '📊', text: 'Industry News' },
+                { icon: '🏆', text: 'Personal Achievements' },
+                { icon: '📝', text: 'Articles & Blogs' },
+                { icon: '📅', text: 'Events & Webinars' },
+                { icon: '🎯', text: 'Job Opportunities' },
+                { icon: '📚', text: 'Learning Resources' },
+                { icon: '🚀', text: 'Project Updates' }
+            ],
+            shareReasons: [
+                { icon: '🤝', text: 'Professional Networking' },
+                { icon: '📚', text: 'Knowledge Sharing' },
+                { icon: '📈', text: 'Career Growth' },
+                { icon: '👤', text: 'Personal Branding' },
+                { icon: '🔍', text: 'Industry Updates' },
+                { icon: '🏆', text: 'Showcase Achievements' },
+                { icon: '💼', text: 'Business Development' },
+                { icon: '🎯', text: 'Recruitment' },
+                { icon: '📣', text: 'Content Marketing' },
+                { icon: '👥', text: 'Community Engagement' }
+            ],
+            writingSkills: [
+                { icon: '🌟', text: 'Expert' },
+                { icon: '💪', text: 'Advanced' },
+                { icon: '📝', text: 'Intermediate' },
+                { icon: '🌱', text: 'Beginner' },
+                { icon: '📚', text: 'Learning' },
+                { icon: '🎯', text: 'Focused Practice' }
+            ],
+            industries: [
+                { icon: '💻', text: 'Technology' },
+                { icon: '📊', text: 'Finance' },
+                { icon: '🏥', text: 'Healthcare' },
+                { icon: '🎓', text: 'Education' },
+                { icon: '🏭', text: 'Manufacturing' },
+                { icon: '🎨', text: 'Creative Arts' },
+                { icon: '📱', text: 'Digital Media' },
+                { icon: '🏢', text: 'Real Estate' },
+                { icon: '⚖️', text: 'Legal' },
+                { icon: '🌐', text: 'Consulting' }
+            ],
+            jobDescriptions: [
+                { icon: '👨‍💻', text: 'Software Developer' },
+                { icon: '📊', text: 'Data Analyst' },
+                { icon: '🎨', text: 'Designer' },
+                { icon: '📈', text: 'Marketing Manager' },
+                { icon: '👥', text: 'HR Professional' },
+                { icon: '📱', text: 'Product Manager' },
+                { icon: '💼', text: 'Business Analyst' },
+                { icon: '🔧', text: 'Engineer' },
+                { icon: '📊', text: 'Financial Analyst' },
+                { icon: '👨‍🏫', text: 'Educator' }
+            ]
+        };
+
+        let currentSlide = 1;
+        const totalSlides = 5;
+        const selections = {
+            sharePreferences: new Set(),
+            shareReasons: new Set(),
+            writingSkills: new Set(),
+            industries: new Set(),
+            jobDescriptions: new Set()
+        };
+
+        // Initialize the page
+        function init() {
+            // Populate all option containers
+            populateOptions('sharePreferences');
+            populateOptions('shareReasons');
+            populateOptions('writingSkills');
+            populateOptions('industries');
+            populateOptions('jobDescriptions');
+            updateProgress();
+        }
+
+        // Populate options for a specific slide
+        function populateOptions(containerId) {
+            const container = document.getElementById(containerId);
+            const options = config[containerId];
+            
+            container.innerHTML = options.map(option => `
+                <div class="option" onclick="toggleSelection(this, '${containerId}', '${option.text}')">
+                    <div class="option-icon">${option.icon}</div>
+                    <div class="option-text">${option.text}</div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle selection of options
+        function toggleSelection(element, containerId, value) {
+            element.classList.toggle('selected');
+            
+            if (element.classList.contains('selected')) {
+                selections[containerId].add(value);
+            } else {
+                selections[containerId].delete(value);
+            }
+        }
+
+        // Navigation functions
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                // Save current slide data
+                saveSlideData(currentSlide);
+                
+                document.getElementById(`slide${currentSlide}`).classList.remove('active');
+                currentSlide++;
+                document.getElementById(`slide${currentSlide}`).classList.add('active');
+                
+                document.getElementById('prevButton').style.display = 'block';
+                if (currentSlide === totalSlides) {
+                    document.getElementById('nextButton').textContent = 'Submit';
+                }
+            } else {
+                // Handle final submission
+                saveSlideData(currentSlide);
+                handleFinalSubmit();
+            }
+            updateProgress();
+        }
+
+        function previousSlide() {
+            if (currentSlide > 1) {
+                document.getElementById(`slide${currentSlide}`).classList.remove('active');
+                currentSlide--;
+                document.getElementById(`slide${currentSlide}`).classList.add('active');
+                
+                if (currentSlide === 1) {
+                    document.getElementById('prevButton').style.display = 'none';
+                }
+                document.getElementById('nextButton').textContent = 'Next';
+            }
+            updateProgress();
+        }
+
+        // Save data for current slide
+        function saveSlideData(slideNumber) {
+            let data = {};
+            
+            switch(slideNumber) {
+                case 1:
+                    data = { sharePreferences: Array.from(selections.sharePreferences) };
+                    localStorage.setItem('sharePreferences', JSON.stringify(data.sharePreferences));
+                    break;
+                case 2:
+                    data = { shareReasons: Array.from(selections.shareReasons) };
+                    localStorage.setItem('shareReasons', JSON.stringify(data.shareReasons));
+                    break;
+                case 3:
+                    data = { writingSkills: Array.from(selections.writingSkills) };
+                    localStorage.setItem('writingSkills', JSON.stringify(data.writingSkills));
+                    break;
+                case 4:
+                    data = { industries: Array.from(selections.industries) };
+                    localStorage.setItem('industries', JSON.stringify(data.industries));
+                    break;
+                case 5:
+                    data = { jobDescriptions: Array.from(selections.jobDescriptions) };
+                    localStorage.setItem('jobDescriptions', JSON.stringify(data.jobDescriptions));
+                    break;
+            }
+
+            // Only log the data instead of making API calls for now
+            console.log('Saved data for slide', slideNumber, data);
+        }
+
+        // Submit all data at the end
+        function handleFinalSubmit() {
+            const preferences = {
+                sharePreferences: JSON.parse(localStorage.getItem('sharePreferences') || '[]'),
+                shareReasons: JSON.parse(localStorage.getItem('shareReasons') || '[]'),
+                writingSkills: JSON.parse(localStorage.getItem('writingSkills') || '[]'),
+                industries: JSON.parse(localStorage.getItem('industries') || '[]'),
+                jobDescriptions: JSON.parse(localStorage.getItem('jobDescriptions') || '[]')
+            };
+
+            // Store preferences with user identifier
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (currentUser) {
+                localStorage.setItem('linkedinPreferences', JSON.stringify(preferences));
+                localStorage.setItem('linkedinSetupComplete', 'true');
+            }
+
+            // Redirect to dashboard
+            window.location.href = 'index.html';
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = (currentSlide - 1) / (totalSlides - 1) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
+
+        // Initialize the page
+        init();
+
+        // Add check at the start of setup page
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'auth.html';
+            }
+        });
+    </script>
+</body>
+</html> 

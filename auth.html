@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600&family=Cabinet+Grotesk:wght@400;500;600&display=swap");
+
+        :root {
+            --purple-600: #9333ea;
+            --purple-700: #7e22ce;
+            --font-primary: "Clash Display", sans-serif;
+            --font-secondary: "Cabinet Grotesk", sans-serif;
+        }
+
+        body {
+            font-family: var(--font-secondary);
+            background: linear-gradient(
+                135deg,
+                rgba(255, 192, 203, 0.15) 0%,    /* Light pink with low opacity */
+                rgba(147, 51, 234, 0.1) 100%     /* Purple (matches your var(--purple-600)) with low opacity */
+            );
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.08);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(147, 51, 234, 0.1);
+        }
+
+        h1 {
+            font-family: var(--font-primary);
+            color: var(--purple-600);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.75rem;
+            line-height: 1.2;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #4b5563;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-family: var(--font-secondary);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--purple-600);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: var(--font-secondary);
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background-color: var(--purple-700);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .auth-footer p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .auth-footer a {
+            color: rgb(173, 25, 244);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <form id="signupForm" onsubmit="handleSignup(event)">
+            <div class="header">
+                <h1>Create Account for Optimizien</h1>
+            </div>
+            <div class="form-group">
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" name="signupEmail" required>
+                <div class="error-message" id="signupEmailError"></div>
+            </div>
+            <div class="form-group">
+                <label for="signupPassword">Password</label>
+                <input type="password" id="signupPassword" name="signupPassword" required>
+                <div class="error-message" id="signupPasswordError"></div>
+            </div>
+            <div class="form-group" id="confirmPasswordGroup">
+                <label for="confirmPassword">Confirm Password</label>
+                <input 
+                    type="password" 
+                    id="confirmPassword" 
+                    name="confirmPassword" 
+                    required
+                    aria-label="Confirm Password"
+                >
+                <div class="error-message" id="confirmError"></div>
+            </div>
+            <button type="submit" id="submitButton">Sign Up</button>
+            
+            <div class="auth-footer">
+                <p>Already have an account? <a href="#" onclick="toggleForm('login')">Login</a></p>
+            </div>
+        </form>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="header">
+                <h1>Welcome Back</h1>
+            </div>
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" name="loginEmail" required>
+                <div class="error-message" id="loginEmailError"></div>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" name="loginPassword" required>
+                <div class="error-message" id="loginPasswordError"></div>
+            </div>
+            <button type="submit" id="submitButton">Login</button>
+            
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="#" onclick="toggleForm('signup')">Sign Up</a></p>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Store users array in localStorage if it doesn't exist
+        if (!localStorage.getItem('users')) {
+            localStorage.setItem('users', JSON.stringify([]));
+        }
+
+        // Function to clear session
+        function clearSession() {
+            localStorage.removeItem('currentUser');
+            sessionStorage.clear();
+        }
+
+        // Clear session when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            clearSession();
+            toggleForm('signup'); // Show signup form by default
+        });
+
+        // Function to check if user has already created a profile
+        function hasExistingProfile(email) {
+            return users.some(user => user.email === email);
+        }
+
+        // Function to show appropriate form based on email
+        function checkEmailAndToggleForm() {
+            const email = document.getElementById('signupEmail').value;
+            if (hasExistingProfile(email)) {
+                // If profile exists, switch to login and pre-fill email
+                toggleForm('login');
+                document.getElementById('loginEmail').value = email;
+                alert('An account already exists with this email. Please login.');
+            }
+        }
+
+        function toggleForm(formType) {
+            const signupForm = document.getElementById('signupForm');
+            const loginForm = document.getElementById('loginForm');
+            
+            if (formType === 'login') {
+                signupForm.style.display = 'none';
+                loginForm.style.display = 'block';
+            } else {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+            }
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+            
+            // Reset errors
+            document.querySelectorAll('.error').forEach(error => error.style.display = 'none');
+
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Get existing users
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+
+            // Check if user already exists
+            if (users.some(u => u.email === email)) {
+                document.getElementById('signupEmailError').textContent = 'Account already exists. Please login.';
+                document.getElementById('signupEmailError').style.display = 'block';
+                setTimeout(() => toggleForm('login'), 1500);
+                return;
+            }
+
+            // Validate password
+            if (password.length < 6) {
+                document.getElementById('signupPasswordError').textContent = 'Password must be at least 6 characters';
+                document.getElementById('signupPasswordError').style.display = 'block';
+                return;
+            }
+
+            // Confirm password
+            if (password !== confirmPassword) {
+                document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+                document.getElementById('confirmPasswordError').style.display = 'block';
+                return;
+            }
+
+            // Create new user
+            const newUser = {
+                email,
+                password,
+                isNewUser: true
+            };
+
+            // Add to users array
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            // Store current user in session
+            sessionStorage.setItem('currentUser', JSON.stringify(newUser));
+
+            // Clear any existing preferences for new user
+            localStorage.removeItem('linkedinPreferences');
+            localStorage.removeItem('linkedinSetupComplete');
+
+            // Redirect to LinkedIn setup
+            window.location.href = 'linkedin_setup.html';
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            // Reset errors
+            document.querySelectorAll('.error').forEach(error => error.style.display = 'none');
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Get users from localStorage
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            // Find user
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (!user) {
+                const errorElement = document.getElementById('loginEmailError') || document.querySelector('.error-message');
+                errorElement.textContent = 'Invalid email or password';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            // Store current user in session
+            sessionStorage.setItem('currentUser', JSON.stringify(user));
+
+            // Check if user has completed LinkedIn setup
+            const hasCompletedSetup = localStorage.getItem('linkedinSetupComplete');
+            
+            if (!hasCompletedSetup) {
+                // Redirect to setup
+                window.location.href = 'linkedin_setup.html';
+            } else {
+                // Proceed to dashboard
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Initial page load setup
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if user is already logged in
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Add email blur event listener to check for existing profile
+            document.getElementById('signupEmail').addEventListener('blur', checkEmailAndToggleForm);
+
+            // Show signup form by default for new users
+            toggleForm('signup');
+        });
+    </script>
+</body>
+</html> 

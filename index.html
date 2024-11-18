@@ -1,0 +1,3173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OptimizeIn Dashboard</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600&family=Cabinet+Grotesk:wght@400;500;600&display=swap");
+
+      :root {
+        --purple-600: #9333ea;
+        --purple-700: #7e22ce;
+        --font-primary: "Clash Display", sans-serif;
+        --font-secondary: "Cabinet Grotesk", sans-serif;
+      }
+
+      body {
+        font-family: var(--font-secondary);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        height: 100vh;
+        background: linear-gradient(
+            135deg,
+            rgba(255, 192, 203, 0.25) 0%,    /* Light pink */
+            rgba(147, 51, 234, 0.2) 100%     /* Purple */
+        );
+      }
+
+      .sidebar {
+        width: 250px;
+        background-color: #f3f4f6;
+        border-right: 1px solid #e5e7eb;
+        padding: 20px;
+      }
+
+      .sidebar h1 {
+        font-family: var(--font-primary);
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        font-size: 28px;
+        color: var(--purple-600);
+        margin-bottom: 20px;
+      }
+
+      .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sidebar-nav button {
+        background: none;
+        border: none;
+        text-align: left;
+        padding: 10px;
+        margin-bottom: 5px;
+        cursor: pointer;
+        color: #4b5563;
+        transition: background-color 0.3s;
+        font-family: var(--font-secondary);
+        font-weight: 500;
+        letter-spacing: 0.01em;
+        font-size: 15px;
+      }
+
+      .sidebar-nav button:hover,
+      .sidebar-nav button.active {
+        background-color: #e9d5ff;
+        color: var(--purple-600);
+      }
+
+      .main-content {
+        flex-grow: 1;
+        padding: 20px;
+        overflow-y: auto;
+      }
+
+      .card {
+        background-color: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .stat-card {
+        background-color: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-card h3 {
+        font-family: var(--font-secondary);
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        color: #6b7280;
+        margin: 0;
+      }
+
+      .stat-card p {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 10px 0 0;
+        color: #111827;
+      }
+
+      button {
+        background-color: var(--purple-600);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: var(--purple-700);
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+      }
+
+      .content-section {
+        display: none;
+      }
+
+      .content-section.active {
+        display: block;
+      }
+
+      /* New styles for post generation */
+      .button-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 15px 0;
+      }
+
+      .ai-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: var(--purple-600);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .ai-button:hover {
+        background-color: var(--purple-700);
+        transform: translateY(-1px);
+      }
+
+      .generated-content {
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        padding: 15px;
+        min-height: 100px;
+        margin: 15px 0;
+        white-space: pre-wrap;
+      }
+
+      .post-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+        color: #6b7280;
+      }
+
+      #generationStatus {
+        color: #6b7280;
+      }
+
+      .secondary-button {
+        background-color: white;
+        color: var(--purple-600);
+        border: 1px solid var(--purple-600);
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .secondary-button:hover {
+        background-color: #f3f4f6;
+      }
+
+      .chat-window {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin: 15px 0;
+      }
+
+      .chat-history {
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 10px;
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+      }
+
+      .chat-message {
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        max-width: 80%;
+      }
+
+      .user-message {
+        background-color: var(--purple-600);
+        color: white;
+        margin-left: auto;
+      }
+
+      .ai-message {
+        background-color: #e5e7eb;
+        color: #111827;
+        margin-right: auto;
+      }
+
+      .chat-input-container {
+        display: flex;
+        gap: 10px;
+      }
+
+      .chat-input {
+        flex-grow: 1;
+        padding: 10px;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .chat-send {
+        padding: 10px 15px;
+        min-width: 44px;
+      }
+
+      .editable {
+        border: 1px solid #e5e7eb;
+        padding: 15px;
+        border-radius: 4px;
+        background-color: white;
+        min-height: 100px;
+      }
+
+      .editable:focus {
+        outline: 2px solid var(--purple-600);
+        border-color: transparent;
+      }
+
+      h2 {
+        font-family: var(--font-primary);
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        font-size: 24px;
+        margin-bottom: 1.5rem;
+      }
+
+      h3 {
+        font-family: var(--font-primary);
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        font-size: 20px;
+      }
+
+      .subtitle {
+        color: #6b7280;
+        font-family: var(--font-secondary);
+        margin-bottom: 24px;
+      }
+
+      .idea-input-card {
+        background: white;
+        padding: 24px;
+        margin-bottom: 32px;
+      }
+
+      .idea-input-card textarea {
+        width: 100%;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 16px;
+        font-family: var(--font-secondary);
+        font-size: 15px;
+        margin-bottom: 16px;
+        resize: none;
+      }
+
+      .generate-button {
+        background-color: var(--purple-600);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-family: var(--font-secondary);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .generate-button:hover {
+        background-color: var(--purple-700);
+        transform: translateY(-1px);
+      }
+
+      .ideas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+      }
+
+      .idea-card {
+        background: white;
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 20px;
+      }
+
+      .idea-card h3 {
+        font-family: var(--font-primary);
+        font-size: 18px;
+        margin-bottom: 12px;
+        color: #111827;
+      }
+
+      .idea-text {
+        color: #4b5563;
+        font-family: var(--font-secondary);
+        font-size: 15px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        white-space: pre-wrap;
+      }
+
+      .idea-text strong {
+        color: #111827;
+        font-size: 16px;
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .idea-actions {
+        display: flex;
+        gap: 12px;
+      }
+
+      .use-button {
+        background-color: var(--purple-600);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-family: var(--font-secondary);
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .save-button {
+        background-color: white;
+        color: var(--purple-600);
+        border: 1px solid var(--purple-600);
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-family: var(--font-secondary);
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .save-button:hover {
+        background-color: #f3f4f6;
+      }
+
+      .saved-ideas-section {
+        margin-top: 40px;
+        padding-top: 32px;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .saved-ideas-section h2 {
+        font-family: var(--font-primary);
+        font-size: 24px;
+        margin-bottom: 24px;
+        color: #111827;
+      }
+
+      .saved-ideas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+      }
+
+      .saved-idea-card {
+        background: white;
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        position: relative;
+      }
+
+      .saved-idea-card h3 {
+        font-family: var(--font-primary);
+        font-size: 18px;
+        margin-bottom: 12px;
+        color: #111827;
+      }
+
+      .saved-idea-text {
+        color: #4b5563;
+        font-family: var(--font-secondary);
+        font-size: 15px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .delete-button {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: none;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+
+      .delete-button:hover {
+        background-color: #fee2e2;
+      }
+
+      .no-saved-ideas {
+        text-align: center;
+        padding: 32px;
+        color: #6b7280;
+        font-family: var(--font-secondary);
+        background: #f9fafb;
+        border-radius: 12px;
+        border: 1px dashed #e5e7eb;
+      }
+
+      .toast-message {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: var(--purple-600);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-family: var(--font-secondary);
+        font-size: 14px;
+        animation: slideIn 0.3s ease, slideOut 0.3s ease 1.7s;
+        z-index: 1000;
+      }
+
+      .delete-button {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: none;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+      }
+
+      .delete-button:hover {
+        background-color: #fee2e2;
+      }
+
+      .saved-idea-card {
+        transition: all 0.3s ease;
+      }
+
+      .saved-idea-card:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideOut {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+
+      .saved-idea-card .use-button {
+        background-color: var(--purple-600);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-family: var(--font-secondary);
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      .saved-idea-card .use-button:hover {
+        background-color: var(--purple-700);
+        transform: translateY(-1px);
+      }
+
+      .calendar-section {
+        padding: 24px;
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 24px;
+      }
+
+      .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .calendar-nav-btn {
+        background: none;
+        border: 1px solid var(--purple-600);
+        color: var(--purple-600);
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .calendar-nav-btn:hover {
+        background-color: var(--purple-600);
+        color: white;
+      }
+
+      .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-weight: 500;
+        color: #6b7280;
+        margin-bottom: 12px;
+      }
+
+      .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+      }
+
+      .calendar-day {
+        aspect-ratio: 1;
+        padding: 8px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .calendar-day:hover {
+        border-color: var(--purple-600);
+        background-color: #f3e8ff;
+      }
+
+      .calendar-day.has-post {
+        background-color: #f3e8ff;
+        border-color: var(--purple-600);
+      }
+
+      .calendar-day.today {
+        background-color: var(--purple-600);
+        color: white;
+      }
+
+      .post-indicator {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        width: 6px;
+        height: 6px;
+        background-color: var(--purple-600);
+        border-radius: 50%;
+      }
+
+      .schedule-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        max-width: 500px;
+        width: 90%;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        backdrop-filter: blur(4px);
+      }
+
+      .time-selector {
+        margin: 16px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .time-selector label {
+        font-family: var(--font-secondary);
+        color: #4b5563;
+        font-size: 14px;
+      }
+
+      .time-input {
+        padding: 8px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        font-family: var(--font-secondary);
+        color: #111827;
+        width: 120px;
+      }
+
+      .schedule-textarea {
+        width: 100%;
+        margin: 16px 0;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        resize: vertical;
+        font-family: var(--font-secondary);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 8px;
+      }
+
+      .calendar-day {
+        min-height: 80px;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+      }
+
+      .post-time {
+        font-size: 10px;
+        color: var(--purple-600);
+        margin-top: 4px;
+        font-weight: 500;
+      }
+
+      .toast-message {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: var(--purple-600);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-family: var(--font-secondary);
+        font-size: 14px;
+        animation: slideIn 0.3s ease, slideOut 0.3s ease 1.7s;
+        z-index: 1000;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideOut {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+
+      .schedule-modal {
+        background: white;
+        padding: 24px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+      }
+
+      .time-selector {
+        margin: 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .time-input {
+        padding: 8px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        font-family: var(--font-secondary);
+        width: 120px;
+        font-size: 14px;
+      }
+
+      .post-content {
+        margin: 20px 0;
+      }
+
+      .post-content label {
+        display: block;
+        margin-bottom: 8px;
+        color: #4b5563;
+        font-size: 14px;
+      }
+
+      .schedule-textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        resize: vertical;
+        font-family: var(--font-secondary);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .cancel-button,
+      .schedule-button {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .cancel-button {
+        background: white;
+        border: 1px solid #e5e7eb;
+        color: #6b7280;
+      }
+
+      .schedule-button {
+        background: var(--purple-600);
+        border: none;
+        color: white;
+      }
+
+      .schedule-button:hover {
+        background: var(--purple-700);
+      }
+
+      .calendar-day {
+        min-height: 80px;
+        padding: 8px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .calendar-day.has-post {
+        background-color: #f3e8ff;
+        border-color: var(--purple-600);
+      }
+
+      .calendar-day.today {
+        background-color: var(--purple-600);
+        color: white;
+      }
+
+      .post-indicator {
+        width: 6px;
+        height: 6px;
+        background-color: var(--purple-600);
+        border-radius: 50%;
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+      }
+
+      .post-time {
+        font-size: 10px;
+        color: var(--purple-600);
+        margin-top: 4px;
+        font-weight: 500;
+      }
+
+      .toast-message {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: var(--purple-600);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-family: var(--font-secondary);
+        font-size: 14px;
+        animation: slideIn 0.3s ease, slideOut 0.3s ease 1.7s;
+        z-index: 1000;
+      }
+
+      .preferences-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .preference-section {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+      }
+
+      .preference-section h4 {
+        color: var(--purple-600);
+        margin-bottom: 0.5rem;
+      }
+
+      .preference-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .preference-tag {
+        background: rgb(246, 230, 255);
+        color: var(--purple-600);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+      }
+
+      /* Profile Button Styles */
+      .profile-btn {
+        margin-top: auto !important;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      /* Profile Section Styles */
+      .profile-grid {
+        display: grid;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .profile-info {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .info-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .info-group label {
+        font-weight: 500;
+        color: #4b5563;
+      }
+
+      .password-field {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .toggle-password {
+        background: none;
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        padding: 0.5rem;
+      }
+
+      .change-password-btn {
+        margin-top: 0.5rem;
+        background-color: #f3f4f6;
+        color: #374151;
+      }
+
+      .logout-button {
+        background-color: #ef4444;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: fit-content;
+      }
+
+      .logout-button:hover {
+        background-color: #dc2626;
+      }
+
+      .preference-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+
+      .preference-tag {
+        background: rgb(246, 230, 255);
+        color: var(--purple-600);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+      }
+
+      .update-preferences-btn {
+        margin-top: 1rem;
+        background-color: var(--purple-600);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+      }
+
+      .update-preferences-btn:hover {
+        background-color: var(--purple-700);
+      }
+
+      .preference-section {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+      }
+
+      .preference-section h4 {
+        color: var(--purple-600);
+        margin-bottom: 0.5rem;
+      }
+
+      /* Analytics Overview Styles */
+      .analytics-overview {
+        margin-bottom: 2rem;
+      }
+
+      .stat-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .stat-icon {
+        font-size: 2rem;
+        color: var(--purple-600);
+      }
+
+      .stat-info h3 {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-number {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-trend {
+        font-size: 0.875rem;
+        color: #6b7280;
+      }
+
+      .stat-trend.positive {
+        color: #059669;
+      }
+
+      /* Tasks Card Styles */
+      .tasks-card {
+        margin-bottom: 1.5rem;
+      }
+
+      .task-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .task-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .task-item input[type="checkbox"] {
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 4px;
+        border: 2px solid var(--purple-600);
+        cursor: pointer;
+      }
+
+      /* Activity Timeline Styles */
+      .activity-timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+      }
+
+      .activity-item:hover {
+        background-color: #f9fafb;
+      }
+
+      .activity-icon {
+        font-size: 1.25rem;
+      }
+
+      .activity-title {
+        font-weight: 500;
+        color: #111827;
+        margin-bottom: 0.25rem;
+      }
+
+      .activity-time {
+        font-size: 0.875rem;
+        color: #6b7280;
+      }
+
+      /* Quick Actions Grid */
+      .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .action-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: left;
+      }
+
+      .action-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border-color: var(--purple-600);
+      }
+
+      .action-icon {
+        font-size: 1.5rem;
+      }
+
+      .action-text h4 {
+        font-weight: 500;
+        color: #111827;
+        margin-bottom: 0.25rem;
+      }
+
+      .action-text p {
+        font-size: 0.875rem;
+        color: #6b7280;
+      }
+
+      /* New styles for task management */
+      .task-input-group {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .task-input-group input {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        font-family: var(--font-secondary);
+      }
+
+      .add-task-btn {
+        background-color: var(--purple-600);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .add-task-btn:hover {
+        background-color: var(--purple-700);
+      }
+
+      .task-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 0;
+      }
+
+      .task-item.completed label {
+        text-decoration: line-through;
+        color: #9ca3af;
+      }
+
+      .delete-task-btn {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+
+      .delete-task-btn:hover {
+        background-color: #fee2e2;
+      }
+
+      .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+      }
+
+      .activity-icon {
+        font-size: 20px;
+        min-width: 24px;
+        text-align: center;
+      }
+
+      .activity-details {
+        flex: 1;
+      }
+
+      .activity-title {
+        font-weight: 500;
+        color: #111827;
+        margin-bottom: 4px;
+      }
+
+      .activity-time {
+        font-size: 12px;
+        color: #6b7280;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  </head>
+  <body>
+    <div class="sidebar">
+      <h1>OptimizeIn</h1>
+      <nav class="sidebar-nav">
+        <button class="nav-button active" data-target="home">Home</button>
+        <button class="nav-button" data-target="idea-generation">
+          Idea Generation
+        </button>
+        <button class="nav-button" data-target="post-creation">
+          Post Creation
+        </button>
+        <button class="nav-button" data-target="content-calendar">
+          Content Calendar
+        </button>
+        <button class="nav-button" data-target="profile-optimization">
+          Profile Optimization
+        </button>
+        <button class="nav-button profile-btn" data-target="user-profile">
+          <i class="fas fa-user"></i> Profile
+        </button>
+      </nav>
+    </div>
+
+    <div class="main-content">
+      <div id="home" class="content-section active">
+        <h2>Welcome back, <span id="welcomeUserName">Creator</span>!</h2>
+        
+        <!-- Analytics Overview -->
+        <div class="analytics-overview">
+            <div class="stat-cards" id="statCardsContainer">
+                <!-- Stats will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- Today's Tasks -->
+        <div class="card tasks-card">
+            <h3>Today's Tasks</h3>
+            <div class="task-list" id="taskListContainer">
+                <!-- Tasks will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card activity-card">
+            <h3>Recent Activity</h3>
+            <div class="activity-timeline" id="activityTimelineContainer">
+                <!-- Activities will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions-grid" id="quickActionsContainer">
+            <!-- Quick actions will be dynamically inserted here -->
+        </div>
+      </div>
+
+      <div id="idea-generation" class="content-section">
+        <h2>AI Ideas Generator ✨</h2>
+        <p class="subtitle">
+          Get instant inspiration! Just enter a post topic below and watch the
+          magic happening.
+        </p>
+
+        <div class="idea-input-card card">
+          <textarea
+            id="ideaInput"
+            placeholder="Write your topic here"
+            rows="4"
+          ></textarea>
+          <button onclick="generateIdeas()" class="generate-button">
+            <span class="icon">✨</span> Generate
+          </button>
+        </div>
+
+        <div class="ideas-grid">
+          <div class="idea-card card">
+            <h3>Idea #1</h3>
+            <p class="idea-text"></p>
+            <div class="idea-actions">
+              <button onclick="useIdea(this)" class="use-button">Use</button>
+              <button onclick="saveIdea(this)" class="save-button">Save</button>
+            </div>
+          </div>
+          <!-- Repeat for ideas 2-4 -->
+        </div>
+
+        <div class="saved-ideas-section">
+          <h2>Saved Ideas 💡</h2>
+          <div class="saved-ideas-grid">
+            <!-- Saved ideas will be populated here -->
+          </div>
+        </div>
+      </div>
+
+      <div id="post-creation" class="content-section">
+        <h2>Post Creation</h2>
+        <div class="card">
+          <textarea
+            id="postInput"
+            placeholder="Write your ideas here... (e.g., 'Tech productivity tips for remote workers', 'Benefits of AI in healthcare')"
+            rows="5"
+          ></textarea>
+
+          <div class="button-group">
+            <button
+              onclick="generateWithLlama('professional')"
+              class="ai-button"
+            >
+              <span class="ai-icon">🤖</span>Professional Tone
+            </button>
+            <button onclick="generateWithLlama('casual')" class="ai-button">
+              <span class="ai-icon">🤖</span>Casual Tone
+            </button>
+            <button onclick="generateWithLlama('funny')" class="ai-button">
+              <span class="ai-icon">🤖</span>Humorous Tone
+            </button>
+            <button onclick="generateWithLlama('viral')" class="ai-button">
+              <span class="ai-icon">🤖</span>Viral Style
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Generated Post & Refinement</h3>
+          <div class="chat-window">
+            <div id="chatHistory" class="chat-history">
+              <!-- Chat messages will appear here -->
+            </div>
+
+            <div
+              id="generatedPost"
+              class="generated-content editable"
+              contenteditable="true"
+            >
+              Your AI-generated post will appear here...
+            </div>
+
+            <div class="chat-input-container">
+              <input
+                type="text"
+                id="refinementInput"
+                class="chat-input"
+                placeholder="Ask AI to modify the post (e.g., 'Make it shorter', 'Add more emojis')"
+              />
+              <button onclick="refinePost()" class="ai-button chat-send">
+                <span class="ai-icon"></span>
+              </button>
+            </div>
+          </div>
+          <div class="post-stats">
+            <div id="generationStatus"></div>
+            <span id="charCount">0/3000 characters</span>
+            <button onclick="copyToClipboard()" class="secondary-button">
+              Copy Post
+            </button>
+            <button onclick="scheduleGeneratedPost()" class="secondary-button">
+              Schedule Post
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="content-calendar" class="content-section">
+        <h2>Content Calendar</h2>
+        <div class="calendar-section card">
+          <div class="calendar-header">
+            <button onclick="previousMonth()" class="calendar-nav-btn">
+              ←
+            </button>
+            <h3 id="currentMonth">November 2024</h3>
+            <button onclick="nextMonth()" class="calendar-nav-btn">→</button>
+          </div>
+
+          <div class="calendar-weekdays">
+            <div>SUN</div>
+            <div>MON</div>
+            <div>TUE</div>
+            <div>WED</div>
+            <div>THU</div>
+            <div>FRI</div>
+            <div>SAT</div>
+          </div>
+
+          <div id="calendarDays" class="calendar-days"></div>
+        </div>
+
+        <div class="scheduled-posts card">
+          <h3>Scheduled Posts</h3>
+          <div id="scheduledPostsList">
+            <!-- Scheduled posts will appear here -->
+          </div>
+        </div>
+      </div>
+
+      <div id="profile-optimization" class="content-section">
+        <h2>LinkedIn Profile Analyzer</h2>
+
+        <!-- Upload Section -->
+        <div class="card" style="text-align: center; padding: 40px">
+          <div id="dropZone" style="border: 2px dashed #e5e7eb; border-radius: 8px; padding: 40px; margin-bottom: 20px;">
+            <h2>How to Upload Your LinkedIn Profile</h2>
+            <ol style="text-align: left; max-width: 400px; margin: 0 auto;">
+              <li>Go to your LinkedIn profile.</li>
+              <li>Click on "Resources".</li>
+              <li>Select "Save to PDF" from the dropdown menu.</li>
+              <li>Download the PDF to your computer.</li>
+              <li>Click the button below to upload the PDF.</li>
+            </ol>
+            <input type="file" id="pdfInput" accept=".pdf" style="display: none" />
+            <button class="choose-file-btn" onclick="document.getElementById('pdfInput').click()" style="background-color: var(--purple-600); color: white; padding: 12px 24px; border-radius: 6px; border: none; margin-top: 16px; cursor: pointer;">
+              Choose File
+            </button>
+          </div>
+        </div>
+
+        <!-- Analysis Results -->
+        <div id="analysisResult" class="card" style="display: none">
+          <div style="text-align: center; margin-bottom: 32px">
+            <h3>Profile Analysis Score</h3>
+            <div style="width: 120px; height: 120px; background: var(--purple-600); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; margin: 20px auto;">
+              <span id="profileScore">0</span>/100
+            </div>
+          </div>
+
+          <div>
+            <h3>Improvement Suggestions</h3>
+            <ul id="suggestionsList" style="list-style: none; padding: 0; margin: 0"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div id="user-profile" class="content-section">
+        <h2>Your Profile</h2>
+        
+        <!-- Personal Information Card -->
+        <div class="card">
+          <h3>Personal Information</h3>
+          <div class="profile-info">
+            <div class="info-group">
+              <label>Email</label>
+              <input type="email" id="profileEmail" readonly>
+            </div>
+            <div class="info-group">
+              <label>Password</label>
+              <div class="password-field">
+                <input type="password" id="profilePassword" readonly>
+                <button onclick="togglePassword()" class="toggle-password">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <button onclick="changePassword()" class="change-password-btn">
+                Change Password
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- LinkedIn Preferences Card -->
+        <div class="card">
+          <h3>LinkedIn Preferences</h3>
+          <div class="preferences-container">
+            <div class="preference-section">
+              <h4>What You Share</h4>
+              <div id="profileSharePreferences" class="preference-tags"></div>
+            </div>
+            <div class="preference-section">
+              <h4>Why You Share</h4>
+              <div id="profileShareReasons" class="preference-tags"></div>
+            </div>
+            <div class="preference-section">
+              <h4>Writing Level</h4>
+              <div id="profileWritingSkills" class="preference-tags"></div>
+            </div>
+            <div class="preference-section">
+              <h4>Industry</h4>
+              <div id="profileIndustries" class="preference-tags"></div>
+            </div>
+            <div class="preference-section">
+              <h4>Job Description</h4>
+              <div id="profileJobDescriptions" class="preference-tags"></div>
+            </div>
+          </div>
+          <button onclick="window.location.href='linkedin_setup.html'" class="update-preferences-btn">
+            Update Preferences
+          </button>
+        </div>
+
+        <!-- Logout Button -->
+        <button onclick="handleLogout()" class="logout-button">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const currentUser = sessionStorage.getItem('currentUser');
+        const hasCompletedSetup = localStorage.getItem('linkedinSetupComplete');
+        
+        if (!currentUser) {
+            // No user logged in, redirect to auth page
+            window.location.href = 'auth.html';
+        } else if (!hasCompletedSetup) {
+            // User hasn't completed setup, redirect to LinkedIn setup
+            window.location.href = 'linkedin_setup.html';
+        } else {
+            // Initialize values only if they don't exist
+            if (!localStorage.getItem('savedIdeas')) {
+                localStorage.setItem('savedIdeas', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('scheduledPosts')) {
+                localStorage.setItem('scheduledPosts', JSON.stringify({}));
+            }
+            localStorage.setItem('profileScore', '0');
+            localStorage.setItem('profileAnalyzed', 'false');
+            
+            // Continue with loading the profile
+            loadUserProfile();
+            // Update the saved ideas display
+            updateSavedIdeasDisplay();
+        }
+      });
+
+      // Define API_KEY globally so it's accessible to all functions
+      const API_KEY ="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";
+
+      // Navigation functionality
+      document.addEventListener("DOMContentLoaded", function () {
+        const navButtons = document.querySelectorAll(".nav-button");
+        const contentSections = document.querySelectorAll(".content-section");
+
+        navButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            const target = this.getAttribute("data-target");
+
+            navButtons.forEach((btn) => btn.classList.remove("active"));
+            this.classList.add("active");
+
+            contentSections.forEach((section) => {
+              section.classList.remove("active");
+              if (section.id === target) {
+                section.classList.add("active");
+              }
+            });
+          });
+        });
+      });
+
+      // Post generation functionality
+      async function generateWithLlama(tone) {
+        const input = document.getElementById("postInput").value.trim();
+        const statusElement = document.getElementById("generationStatus");
+        const generatedPost = document.getElementById("generatedPost");
+        const chatHistory = document.getElementById("chatHistory");
+
+        if (!input) {
+          alert("Please write some ideas first!");
+          return;
+        }
+
+        // Show generating status
+        statusElement.innerHTML = "🤖 Generating...";
+        generatedPost.textContent = "Generating your post...";
+
+        // Clear chat history for new generation
+        chatHistory.innerHTML = '';
+
+        const prompts = {
+          professional: `Using this idea and explanation: "${input}", write a detailed, professional social media post that directly explains the topic. The post should be comprehensive and self-contained, not a teaser or promotional message. Include relevant examples and insights.`,
+          casual: `Using this idea and explanation: "${input}", write a friendly and conversational social media post that directly explains the topic. Make it easy to understand and relatable, with examples that anyone can grasp. The post should contain all the information, not redirect to an article.`,
+          funny: `Using this idea and explanation: "${input}", write a humorous and entertaining social media post that directly explains the topic. Include witty observations and fun examples while still being informative. Make it a complete post, not a teaser.`,
+          viral: `Using this idea and explanation: "${input}", write an engaging and shareable social media post that directly explains the topic. Make it attention-grabbing and informative, with interesting facts and insights. The post should be complete in itself, not a link to an article.`
+        };
+
+        try {
+          const response = await fetch(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${API_KEY}`,
+              },
+              body: JSON.stringify({
+                model: "llama3-70b-8192",
+                messages: [
+                  {
+                    role: "system",
+                    content: "You are a social media content creator who writes detailed, informative posts. Your posts should be complete and self-contained, not teasers or promotional content that redirects to articles."
+                  },
+                  {
+                    role: "user",
+                    content: prompts[tone],
+                  },
+                ],
+                temperature: 0.7,
+                max_tokens: 1000,
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Generation failed");
+          }
+
+          const data = await response.json();
+          const generatedText = data.choices[0].message.content.trim();
+
+          // Clear previous content
+          generatedPost.textContent = generatedText;
+          statusElement.innerHTML = "✅ Generated";
+          updateCharCount(generatedText.length);
+
+          // Add success message to chat history
+          addMessageToChat("ai", "✨ Post generated successfully! You can now edit it directly or ask for refinements below.");
+
+          // Log activity
+          ActivityTracker.addActivity('post_created', generatedText);
+
+        } catch (error) {
+          console.error("Error:", error);
+          statusElement.innerHTML = "❌ Generation failed";
+          generatedPost.textContent =
+            "Sorry, there was an error generating your post. Please try again.";
+        }
+      }
+
+      function updateCharCount(count) {
+        document.getElementById(
+          "charCount"
+        ).textContent = `${count}/3000 characters`;
+      }
+
+      function copyToClipboard() {
+        const generatedPost =
+          document.getElementById("generatedPost").textContent;
+        navigator.clipboard
+          .writeText(generatedPost)
+          .then(() => {
+            alert("Post copied to clipboard!");
+          })
+          .catch((err) => {
+            console.error("Failed to copy text: ", err);
+          });
+      }
+
+      // Character counter for input
+      document
+        .getElementById("postInput")
+        ?.addEventListener("input", function () {
+          const charCount = this.value.length;
+          updateCharCount(charCount);
+        });
+
+      async function refinePost() {
+        const refinementInput = document.getElementById("refinementInput");
+        const chatHistory = document.getElementById("chatHistory");
+        const currentPost = document.getElementById("generatedPost");
+        const instruction = refinementInput.value.trim();
+
+        if (!instruction) return;
+
+        // Add user message to chat
+        addMessageToChat("user", instruction);
+
+        // Clear input
+        refinementInput.value = "";
+
+        try {
+          const response = await fetch(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${API_KEY}`,
+              },
+              body: JSON.stringify({
+                model: "llama3-70b-8192",
+                messages: [
+                  {
+                    role: "system",
+                    content:
+                      "You are a helpful AI assistant that helps refine social media posts. Provide direct edits without explanations unless asked.",
+                  },
+                  {
+                    role: "user",
+                    content: `Current post: "${currentPost.textContent}"\n\nInstruction: ${instruction}`,
+                  },
+                ],
+                temperature: 0.7,
+                max_tokens: 1000,
+              }),
+            }
+          );
+
+          if (!response.ok) throw new Error("Refinement failed");
+
+          const data = await response.json();
+          const refinedText = data.choices[0].message.content.trim();
+
+          // Add AI response to chat
+          addMessageToChat("ai", "Here's the refined version:");
+
+          // Update the post
+          currentPost.textContent = refinedText;
+          updateCharCount(refinedText.length);
+        } catch (error) {
+          console.error("Error:", error);
+          addMessageToChat(
+            "ai",
+            "Sorry, I encountered an error while refining the post."
+          );
+        }
+      }
+
+      function addMessageToChat(role, message) {
+        const chatHistory = document.getElementById("chatHistory");
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `chat-message ${role}-message`;
+        messageDiv.textContent = message;
+        chatHistory.appendChild(messageDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+      }
+
+      // Add Enter key support for the chat input
+      document
+        .getElementById("refinementInput")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            refinePost();
+          }
+        });
+
+      async function generateIdeas() {
+        const input = document.getElementById("ideaInput").value.trim();
+        const ideasGrid = document.querySelector(".ideas-grid");
+
+        if (!input) {
+          alert("Please enter a topic first!");
+          return;
+        }
+
+        // Clear existing cards and show loading state
+        ideasGrid.innerHTML = "";
+        for (let i = 0; i < 4; i++) {
+          ideasGrid.innerHTML += `
+            <div class="idea-card card">
+                <h3>Idea #${i + 1}</h3>
+                <p class="idea-text">Generating idea...</p>
+                <div class="idea-actions">
+                    <button onclick="useIdea(this)" class="use-button">Use</button>
+                    <button onclick="saveIdea(this)" class="save-button">Save</button>
+                </div>
+            </div>
+        `;
+        }
+
+        try {
+          const response = await fetch(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${API_KEY}`,
+              },
+              body: JSON.stringify({
+                model: "mixtral-8x7b-32768",
+                messages: [
+                  {
+                    role: "system",
+                    content: "Generate exactly 4 unique content ideas. Each idea should have a title and explanation. Format each idea as 'Title: [title]\\nExplanation: [explanation]'. Separate each idea with '---'",
+                  },
+                  {
+                    role: "user",
+                    content: `Generate 4 unique content ideas related to: ${input}`
+                  },
+                ],
+                temperature: 0.8,
+                max_tokens: 1000,
+              }),
+            }
+          );
+
+          if (!response.ok) throw new Error("Generation failed");
+
+          const data = await response.json();
+          const ideas = data.choices[0].message.content.split('---').filter(idea => idea.trim());
+
+          // Update idea cards
+          const ideaCards = document.querySelectorAll(".idea-text");
+          ideas.forEach((idea, index) => {
+            if (ideaCards[index]) {
+              const [title, explanation] = idea.split('\n').filter(line => line.trim());
+              const formattedTitle = title.replace('Title:', '').trim();
+              const formattedExplanation = explanation.replace('Explanation:', '').trim();
+              
+              ideaCards[index].innerHTML = `
+                  <strong>${formattedTitle}</strong>
+                  <br><br>
+                  ${formattedExplanation}
+              `;
+            }
+          });
+
+        } catch (error) {
+          console.error("Error:", error);
+          const ideaCards = document.querySelectorAll(".idea-text");
+          ideaCards.forEach((card) => {
+            card.textContent = "Failed to generate idea. Please try again.";
+          });
+        }
+
+        // Add this new function
+        ActivityTracker.addActivity('idea_generated');
+      }
+
+      // Add this new function
+      function useIdea(button) {
+        // Get the idea text from the card
+        const ideaText = button
+          .closest(".idea-card")
+          .querySelector(".idea-text").textContent;
+
+        // Switch to post creation section
+        const postCreationSection = document.getElementById("post-creation");
+        const postInput = document.getElementById("postInput");
+
+        // Update navigation buttons
+        document.querySelectorAll(".nav-button").forEach((btn) => {
+          btn.classList.remove("active");
+          if (btn.getAttribute("data-target") === "post-creation") {
+            btn.classList.add("active");
+          }
+        });
+
+        // Hide all sections and show post creation
+        document.querySelectorAll(".content-section").forEach((section) => {
+          section.classList.remove("active");
+        });
+        postCreationSection.classList.add("active");
+
+        // Set the idea text in the post input
+        postInput.value = ideaText;
+
+        // Scroll to the top of the post creation section
+        postCreationSection.scrollIntoView({ behavior: "smooth" });
+      }
+
+      // Add some animation styles
+      const style = document.createElement("style");
+      style.textContent = `
+            .use-button {
+                transition: all 0.3s ease;
+            }
+
+            .use-button:hover {
+                background-color: var(--purple-700);
+                transform: translateY(-1px);
+            }
+
+            .content-section {
+                transition: opacity 0.3s ease;
+            }
+
+            .content-section:not(.active) {
+                opacity: 0;f
+                pointer-events: none;
+            }
+
+            .content-section.active {
+                opacity: 1;
+                pointer-events: auto;
+            }
+        `;
+      document.head.appendChild(style);
+
+      // Initialize saved ideas from localStorage
+      let savedIdeas = JSON.parse(localStorage.getItem("savedIdeas")) || [];
+
+      // Function to save idea
+      function saveIdea(button) {
+        const ideaCard = button.closest(".idea-card");
+        const ideaText = ideaCard.querySelector(".idea-text").textContent;
+        
+        // Get current saved ideas
+        let savedIdeas = JSON.parse(localStorage.getItem("savedIdeas")) || [];
+
+        // Check if idea already exists
+        if (!savedIdeas.includes(ideaText)) {
+          savedIdeas.push(ideaText);
+          localStorage.setItem("savedIdeas", JSON.stringify(savedIdeas));
+          
+          // Update the display immediately
+          updateSavedIdeasDisplay();
+
+          // Show success message
+          const saveButton = ideaCard.querySelector(".save-button");
+          saveButton.textContent = "Saved ✓";
+          saveButton.style.backgroundColor = "#f3f4f6";
+          setTimeout(() => {
+            saveButton.textContent = "Save";
+            saveButton.style.backgroundColor = "white";
+          }, 2000);
+
+          // Add activity
+          ActivityTracker.addActivity('idea_saved');
+        }
+      }
+
+      // Function to delete saved idea
+      function deleteSavedIdea(index) {
+        // Show confirmation dialog
+        if (confirm("Are you sure you want to delete this idea?")) {
+          savedIdeas.splice(index, 1);
+          localStorage.setItem("savedIdeas", JSON.stringify(savedIdeas));
+          updateSavedIdeasDisplay();
+
+          // Show temporary success message
+          const toast = document.createElement("div");
+          toast.className = "toast-message";
+          toast.textContent = "Idea deleted successfully";
+          document.body.appendChild(toast);
+
+          setTimeout(() => {
+            toast.remove();
+          }, 2000);
+        }
+      }
+
+      // Function to update saved ideas display
+      function updateSavedIdeasDisplay() {
+        const savedIdeasGrid = document.querySelector(".saved-ideas-grid");
+        if (!savedIdeasGrid) return; // Guard clause if element doesn't exist
+
+        // Get current saved ideas
+        const savedIdeas = JSON.parse(localStorage.getItem("savedIdeas")) || [];
+
+        // Clear current display
+        savedIdeasGrid.innerHTML = "";
+
+        if (savedIdeas.length === 0) {
+          savedIdeasGrid.innerHTML = `
+            <div class="no-saved-ideas">
+                <p>No saved ideas yet. Save some ideas above to see them here!</p>
+            </div>
+        `;
+          return;
+        }
+
+        // Display each saved idea
+        savedIdeas.forEach((idea, index) => {
+          savedIdeasGrid.innerHTML += `
+            <div class="saved-idea-card card">
+                <button onclick="deleteSavedIdea(${index})" class="delete-button" 
+                    title="Delete this idea">✕</button>
+                <h3>Saved Idea #${index + 1}</h3>
+                <p class="saved-idea-text">${idea}</p>
+                <div class="idea-actions">
+                    <button onclick="useSavedIdea(this)" class="use-button">Use</button>
+                </div>
+            </div>
+        `;
+        });
+      }
+
+      // Call this when the page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        updateSavedIdeasDisplay();
+      });
+
+      function useSavedIdea(button) {
+        // Get the idea text from the saved card
+        const ideaText = button
+          .closest(".saved-idea-card")
+          .querySelector(".saved-idea-text").textContent;
+
+        // Switch to post creation section
+        const postCreationSection = document.getElementById("post-creation");
+        const postInput = document.getElementById("postInput");
+
+        // Update navigation buttons
+        document.querySelectorAll(".nav-button").forEach((btn) => {
+          btn.classList.remove("active");
+          if (btn.getAttribute("data-target") === "post-creation") {
+            btn.classList.add("active");
+          }
+        });
+
+        // Hide all sections and show post creation
+        document.querySelectorAll(".content-section").forEach((section) => {
+          section.classList.remove("active");
+        });
+        postCreationSection.classList.add("active");
+
+        // Set the idea text in the post input
+        postInput.value = ideaText;
+
+        // Scroll to the top of the post creation section
+        postCreationSection.scrollIntoView({ behavior: "smooth" });
+      }
+
+      // Add these to your existing JavaScript
+      let scheduledPosts =
+        JSON.parse(localStorage.getItem("scheduledPosts")) || {};
+      let currentDate = new Date();
+
+      function generateCalendar(date) {
+        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        const startingDay = firstDay.getDay();
+        const monthLength = lastDay.getDate();
+
+        const calendarDays = document.getElementById("calendarDays");
+        calendarDays.innerHTML = "";
+
+        // Update month display
+        document.getElementById("currentMonth").textContent =
+          date.toLocaleString("default", { month: "long", year: "numeric" });
+
+        // Add empty cells for days before start of month
+        for (let i = 0; i < startingDay; i++) {
+          calendarDays.innerHTML += `<div class="calendar-day empty"></div>`;
+        }
+
+        // Add days of the month
+        for (let day = 1; day <= monthLength; day++) {
+          const dateString = `${date.getFullYear()}-${(date.getMonth() + 1)
+            .toString()
+            .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+          const scheduledPost = scheduledPosts[dateString];
+          const isToday =
+            day === new Date().getDate() &&
+            date.getMonth() === new Date().getMonth() &&
+            date.getFullYear() === new Date().getFullYear();
+
+          calendarDays.innerHTML += `
+                    <div class="calendar-day ${
+                      scheduledPost ? "has-post" : ""
+                    } ${isToday ? "today" : ""}" 
+                         onclick="showScheduleModal('${dateString}')">
+                        <span class="day-number">${day}</span>
+                        ${
+                          scheduledPost
+                            ? `
+                            <div class="post-indicator"></div>
+                            <div class="post-time">${formatTime(
+                              scheduledPost.time
+                            )}</div>
+                        `
+                            : ""
+                        }
+                    </div>
+                `;
+        }
+      }
+
+      function showScheduleModal(date) {
+        const modal = document.createElement("div");
+        const existingPost = scheduledPosts[date];
+        const existingTime = existingPost ? existingPost.time : "09:00";
+        const existingContent = existingPost ? existingPost.content : "";
+
+        modal.innerHTML = `
+                <div class="modal-overlay" onclick="closeModal()"></div>
+                <div class="schedule-modal">
+                    <div class="modal-header">
+                        <h3>Schedule Post</h3>
+                        ${
+                          existingPost
+                            ? `<button onclick="deleteScheduledPost('${date}')" class="delete-button" title="Delete post">
+                                <span class="icon">🗑️</span>
+                            </button>`
+                            : ""
+                        }
+                    </div>
+
+                    <div class="schedule-inputs">
+                        <div class="date-time-selector">
+                            <div class="input-group">
+                                <label for="postDate">Post Date:</label>
+                                <input 
+                                    type="date" 
+                                    id="postDate" 
+                                    value="${date}"
+                                    class="date-input"
+                                    min="${
+                                      new Date().toISOString().split("T")[0]
+                                    }"
+                                >
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="postTime">Post Time:</label>
+                                <input 
+                                    type="time" 
+                                    id="postTime" 
+                                    value="${existingTime}"
+                                    class="time-input"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="schedulePostContent">Post Content:</label>
+                            <textarea 
+                                id="schedulePostContent" 
+                                placeholder="Enter your post content..."
+                                rows="6"
+                                class="schedule-textarea"
+                            >${existingContent}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button onclick="closeModal()" class="cancel-button">Cancel</button>
+                        <button onclick="schedulePost()" class="schedule-button">Schedule Post</button>
+                    </div>
+                </div>
+            `;
+        document.body.appendChild(modal);
+      }
+
+      function closeModal() {
+        document.querySelector(".modal-overlay")?.parentElement.remove();
+      }
+
+      function schedulePost() {
+        const content = document
+          .getElementById("schedulePostContent")
+          .value.trim();
+        const time = document.getElementById("postTime").value;
+        const newDate = document.getElementById("postDate").value;
+
+        if (content && time && newDate) {
+          // Remove old post if date changed
+          const oldDate = Object.keys(scheduledPosts).find(
+            (date) => scheduledPosts[date].content === content
+          );
+          if (oldDate) {
+            delete scheduledPosts[oldDate];
+          }
+
+          // Save new post
+          scheduledPosts[newDate] = {
+            content: content,
+            time: time,
+          };
+
+          // Save to localStorage
+          localStorage.setItem(
+            "scheduledPosts",
+            JSON.stringify(scheduledPosts)
+          );
+
+          // Update calendar display
+          generateCalendar(new Date(newDate));
+          closeModal();
+
+          // Show success message
+          const toast = document.createElement("div");
+          toast.className = "toast-message";
+          toast.textContent = `Post scheduled for ${formatDate(
+            newDate
+          )} at ${formatTime(time)}`;
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 2000);
+        } else {
+          // Show error if fields are empty
+          alert("Please fill in all fields before scheduling");
+        }
+
+        // Add this new function
+        ActivityTracker.addActivity('post_scheduled', newDate);
+      }
+
+      function deleteScheduledPost(date) {
+        if (confirm("Are you sure you want to delete this scheduled post?")) {
+          delete scheduledPosts[date];
+          localStorage.setItem(
+            "scheduledPosts",
+            JSON.stringify(scheduledPosts)
+          );
+          generateCalendar(currentDate);
+          closeModal();
+
+          // Show success message
+          const toast = document.createElement("div");
+          toast.className = "toast-message";
+          toast.textContent = "Post deleted successfully";
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 2000);
+        }
+      }
+
+      function previousMonth() {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        generateCalendar(currentDate);
+      }
+
+      function nextMonth() {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        generateCalendar(currentDate);
+      }
+
+      // Initialize calendar when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        generateCalendar(currentDate);
+      });
+
+      // Add this to your generateWithLlama function
+      function scheduleGeneratedPost() {
+        const generatedContent =
+          document.getElementById("generatedPost").textContent;
+        showScheduleModal(new Date().toISOString().split("T")[0]);
+        document.getElementById("schedulePostContent").value = generatedContent;
+      }
+
+      // Add helper function to format time
+      function formatTime(time) {
+        return new Date(`2000-01-01T${time}`).toLocaleTimeString([], {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        });
+      }
+
+      // Helper function to format date
+      function formatDate(dateString) {
+        return new Date(dateString).toLocaleDateString();
+      }
+
+      // PDF.js initialization
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+
+      // File upload handling
+      function initializeFileUpload() {
+        const pdfInput = document.getElementById("pdfInput");
+
+        // Remove drag-and-drop event listeners
+        // const dropZone = document.getElementById("dropZone");
+        // ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+        //   dropZone.addEventListener(eventName, preventDefaults, false);
+        //   document.body.addEventListener(eventName, preventDefaults, false);
+        // });
+
+        // dropZone.addEventListener("drop", handleDrop, false);
+        pdfInput.addEventListener("change", handleFiles, false);
+      }
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      function highlight(e) {
+        document.getElementById("dropZone").classList.add("highlight");
+      }
+
+      function unhighlight(e) {
+        document.getElementById("dropZone").classList.remove("highlight");
+      }
+
+      function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+      }
+
+      function handleFiles(e) {
+        const files = e.target?.files || e;
+        if (files[0]) {
+          processFile(files[0]);
+        }
+      }
+      
+
+      async function processFile(file) {
+        try {
+          const text = await extractTextFromPDF(file);
+          await analyzeProfile(text);
+        } catch (error) {
+          console.error("Error processing file:", error);
+          alert("Error processing file. Please try again.");
+        }
+      }
+
+      async function extractTextFromPDF(file) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let fullText = "";
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          fullText +=
+            textContent.items.map((item) => item.str).join(" ") + "\n";
+        }
+
+        return fullText;
+      }
+
+      async function analyzeProfile(profileText) {
+        try {
+          const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "mixtral-8x7b-32768",
+                messages: [
+                    {
+                        role: "system",
+                        content: `You are a LinkedIn profile analyzer. Respond ONLY with a JSON object in this EXACT format:
+{
+  "overall": 75,
+  "sections": {
+    "headline": 70,
+    "summary": 75,
+    "experience": 80,
+    "education": 75,
+    "other": 70
+  },
+  "suggestions": {
+    "headline": {
+      "current": "Current headline text",
+      "improve": "Suggestion for improvement",
+      "example": "Example of improved headline"
+    },
+    "summary": {
+      "current": "Current summary text",
+      "improve": "Suggestion for improvement",
+      "example": "Example of improved summary"
+    },
+    "experience": {
+      "current": "Current experience text",
+      "improve": "Suggestion for improvement",
+      "example": "Example of improved experience"
+    },
+    "education": {
+      "current": "Current education text",
+      "improve": "Suggestion for improvement",
+      "example": "Example of improved education"
+    },
+    "other": {
+      "current": "Current other elements",
+      "improve": "Suggestion for improvement",
+      "example": "Example of improvement"
+    }
+  }
+}`
+                    },
+                    {
+                        role: "user",
+                        content: `Analyze this LinkedIn profile and return ONLY the JSON response:\n\n${profileText}`
+                    }
+                ],
+                temperature: 0.3,
+                max_tokens: 2000
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Raw API response:', data);
+
+        // Clean the response text
+        let analysisText = data.choices[0].message.content
+            .trim()
+            .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+            .replace(/\n/g, ' ') // Replace newlines with spaces
+            .replace(/\s+/g, ' '); // Replace multiple spaces with single space
+
+        console.log('Cleaned analysis text:', analysisText);
+
+        // Try to extract just the JSON part if there's any extra text
+        const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            analysisText = jsonMatch[0];
+        }
+
+        let analysis = JSON.parse(analysisText);
+        console.log('Parsed analysis:', analysis);
+
+        // After successfully parsing the analysis, store the score and set analyzed flag
+        localStorage.setItem('profileScore', analysis.overall);
+        localStorage.setItem('profileAnalyzed', 'true');
+        
+        // Update the home page stats
+        updateHomePageStats();
+
+        // Show the results
+        const analysisResult = document.getElementById('analysisResult');
+        analysisResult.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <h2 style="font-size: 24px; margin-bottom: 20px;">Profile Analysis Score</h2>
+                
+                <!-- Score Circle -->
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    background-color: #9333ea;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 30px;
+                    color: white;
+                    font-size: 24px;
+                ">
+                    ${analysis.overall}/100
+                </div>
+
+                <!-- Section Scores -->
+                <div style="margin-top: 30px;">
+                    <h2 style="font-size: 24px; margin-bottom: 20px;">Improvement Suggestions</h2>
+                    
+                    <!-- Suggestions Container -->
+                    <div id="suggestionsContainer" style="text-align: left;">
+                        ${Object.entries(analysis.suggestions).map(([section, suggestion]) => `
+                            <div style="margin-bottom: 20px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                                <div style="background-color: #f3f4f6; padding: 10px; font-weight: bold;">
+                                    ${capitalizeFirstLetter(section)}
+                                </div>
+                                
+                                <!-- Current State - Red -->
+                                <div style="
+                                    background-color: #FEE2E2;
+                                    color: #991B1B;
+                                    padding: 12px;
+                                    border-bottom: 1px solid #e5e7eb;
+                                ">
+                                    <strong>Current:</strong><br>
+                                    ${suggestion.current}
+                                </div>
+
+                                <!-- Improvement - Yellow -->
+                                <div style="
+                                    background-color: #FEF3C7;
+                                    color: #92400E;
+                                    padding: 12px;
+                                    border-bottom: 1px solid #e5e7eb;
+                                ">
+                                    <strong>Improvement:</strong><br>
+                                    ${suggestion.improve}
+                                </div>
+
+                                <!-- Example - Green -->
+                                <div style="
+                                    background-color: #D1FAE5;
+                                    color: #065F46;
+                                    padding: 12px;
+                                ">
+                                    <strong>Example:</strong><br>
+                                    ${suggestion.example}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Show the results
+        analysisResult.style.display = 'block';
+
+        } catch (error) {
+            console.error('Error in analyzeProfile:', error);
+            document.getElementById('analysisResult').innerHTML = `
+                <div style="color: #DC2626; padding: 12px; background-color: #FEE2E2; border-radius: 6px;">
+                    Error analyzing profile: ${error.message}
+                    <br><br>
+                    Please check:
+                    <br>• Your API key is valid
+                    <br>• The PDF file contains valid text
+                    <br>• Your internet connection is stable
+                </div>
+            `;
+        }
+      }
+
+      // Initialize file upload when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeFileUpload();
+      });
+
+      // Helper function to capitalize first letter
+      function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+      }
+
+      function handleSignup() {
+        // Your signup logic here
+
+        // On successful signup, redirect to the LinkedIn setup page
+        window.location.href = 'linkedin_setup.html';
+      }
+
+      // After signup, store user data
+      localStorage.setItem('userId', '12345'); // Example user ID
+
+      // In linkedin_setup.html, retrieve user data
+      const userId = localStorage.getItem('userId');
+
+      function loadLinkedInPreferences() {
+        const preferences = JSON.parse(localStorage.getItem('linkedinPreferences'));
+        if (preferences) {
+          // Update UI with saved preferences
+          document.getElementById('sharePreferences').innerHTML = preferences.sharePreferences
+            .map(pref => `<div class="preference-tag">${pref}</div>`).join('');
+          // ... load other preferences
+        }
+      }
+      
+
+      // Add these functions to your existing JavaScript
+      function loadUserProfile() {
+        // Load user data from sessionStorage
+        const user = JSON.parse(sessionStorage.getItem('currentUser'));
+        if (user) {
+            document.getElementById('profileEmail').value = user.email || '';
+            document.getElementById('profilePassword').value = user.password || '';
+        }
+
+        // Load LinkedIn preferences from localStorage
+        const linkedinPrefs = JSON.parse(localStorage.getItem('linkedinPreferences'));
+        if (linkedinPrefs) {
+            // Display What You Share
+            const sharePrefsContainer = document.getElementById('profileSharePreferences');
+            if (sharePrefsContainer && linkedinPrefs.sharePreferences) {
+                sharePrefsContainer.innerHTML = linkedinPrefs.sharePreferences
+                    .map(pref => `<div class="preference-tag">${pref}</div>`)
+                    .join('');
+            }
+
+            // Display Why You Share
+            const shareReasonsContainer = document.getElementById('profileShareReasons');
+            if (shareReasonsContainer && linkedinPrefs.shareReasons) {
+                shareReasonsContainer.innerHTML = linkedinPrefs.shareReasons
+                    .map(reason => `<div class="preference-tag">${reason}</div>`)
+                    .join('');
+            }
+
+            // Display Writing Level
+            const writingSkillsContainer = document.getElementById('profileWritingSkills');
+            if (writingSkillsContainer && linkedinPrefs.writingSkills) {
+                writingSkillsContainer.innerHTML = linkedinPrefs.writingSkills
+                    .map(skill => `<div class="preference-tag">${skill}</div>`)
+                    .join('');
+            }
+
+            // Display Industry
+            const industriesContainer = document.getElementById('profileIndustries');
+            if (industriesContainer && linkedinPrefs.industries) {
+                industriesContainer.innerHTML = linkedinPrefs.industries
+                    .map(industry => `<div class="preference-tag">${industry}</div>`)
+                    .join('');
+            }
+
+            // Display Job Description
+            const jobDescContainer = document.getElementById('profileJobDescriptions');
+            if (jobDescContainer && linkedinPrefs.jobDescriptions) {
+                jobDescContainer.innerHTML = linkedinPrefs.jobDescriptions
+                    .map(desc => `<div class="preference-tag">${desc}</div>`)
+                    .join('');
+            }
+        }
+      }
+
+      // Add this to ensure the profile loads when the page loads
+      document.addEventListener('DOMContentLoaded', function() {
+        loadUserProfile();
+      });
+
+      // Update these functions for password visibility toggle and change
+      function togglePassword() {
+        const passwordInput = document.getElementById('profilePassword');
+        if (passwordInput) {
+            passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+            const icon = document.querySelector('.toggle-password i');
+            if (icon) {
+                icon.className = passwordInput.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+            }
+        }
+      }
+
+      function changePassword() {
+        const newPassword = prompt('Enter new password:');
+        if (newPassword) {
+            const user = JSON.parse(sessionStorage.getItem('currentUser'));
+            user.password = newPassword;
+            sessionStorage.setItem('currentUser', JSON.stringify(user));
+            document.getElementById('profilePassword').value = newPassword;
+            alert('Password updated successfully!');
+        }
+      }
+
+      function handleLogout() {
+        // Clear all storage including the profile analyzed flag
+        sessionStorage.clear();
+        localStorage.removeItem('linkedinPreferences');
+        localStorage.removeItem('linkedinSetupComplete');
+        localStorage.removeItem('profileScore');
+        localStorage.removeItem('profileAnalyzed');
+        localStorage.removeItem('savedIdeas');        // Add this line
+        localStorage.removeItem('scheduledPosts');    // Add this line
+        
+        // Redirect to login page
+        window.location.href = 'auth.html';
+      }
+
+      // Add this navigation function to your JavaScript
+      function navigateTo(section) {
+          // Update navigation buttons
+          document.querySelectorAll('.nav-button').forEach(btn => {
+              btn.classList.remove('active');
+              if (btn.getAttribute('data-target') === section) {
+                  btn.classList.add('active');
+              }
+          });
+
+          // Hide all sections and show target section
+          document.querySelectorAll('.content-section').forEach(section => {
+              section.classList.remove('active');
+          });
+          document.getElementById(section).classList.add('active');
+      }
+
+      // Add these functions after your existing JavaScript code
+      function updateHomePageStats() {
+          // Get saved ideas count
+          const savedIdeas = JSON.parse(localStorage.getItem('savedIdeas')) || [];
+          
+          // Get scheduled posts count and next post date
+          const scheduledPosts = JSON.parse(localStorage.getItem('scheduledPosts')) || {};
+          const scheduledDates = Object.keys(scheduledPosts).sort();
+          const nextPostDate = getNextPostDate(scheduledDates);
+          
+          // Only get profileScore if it has been analyzed
+          const hasAnalyzedProfile = localStorage.getItem('profileAnalyzed') === 'true';
+          const profileScore = hasAnalyzedProfile ? (localStorage.getItem('profileScore') || '0') : '0';
+          const profileTrend = hasAnalyzedProfile ? 'Based on latest analysis' : 'Upload PDF to analyze';
+
+          // Update the stats in the DOM
+          const statsHTML = `
+              <div class="stat-card">
+                  <div class="stat-icon">📈</div>
+                  <div class="stat-info">
+                      <h3>Post Ideas</h3>
+                      <p class="stat-number">${savedIdeas.length}</p>
+                      <p class="stat-trend">${savedIdeas.length > 0 ? `${savedIdeas.length} saved ideas` : 'No saved ideas yet'}</p>
+                  </div>
+              </div>
+              <div class="stat-card">
+                  <div class="stat-icon">📅</div>
+                  <div class="stat-info">
+                      <h3>Scheduled Posts</h3>
+                      <p class="stat-number">${scheduledDates.length}</p>
+                      <p class="stat-trend">${nextPostDate ? `Next post in ${nextPostDate}` : 'No scheduled posts'}</p>
+                  </div>
+              </div>
+              <div class="stat-card">
+                  <div class="stat-icon">⭐</div>
+                  <div class="stat-info">
+                      <h3>Profile Score</h3>
+                      <p class="stat-number">${profileScore}%</p>
+                      <p class="stat-trend">${profileTrend}</p>
+                  </div>
+              </div>
+          `;
+
+          document.querySelector('.stat-cards').innerHTML = statsHTML;
+      }
+
+      function getNextPostDate(scheduledDates) {
+          if (scheduledDates.length === 0) return null;
+          
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          
+          // Find the next scheduled date
+          const nextDate = scheduledDates.find(date => {
+              const postDate = new Date(date);
+              return postDate >= today;
+          });
+
+          if (!nextDate) return null;
+
+          // Calculate the difference in days
+          const diffTime = Math.abs(new Date(nextDate) - today);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          return diffDays === 1 ? 'tomorrow' : `${diffDays} days`;
+      }
+
+      // New Home Page Management Functions
+      function initializeHomePage() {
+          updateHomePageStats();
+          updateTasks();
+          updateRecentActivity();
+          updateQuickActions();
+          updateWelcomeName();
+      }
+
+      function updateWelcomeName() {
+          const user = JSON.parse(sessionStorage.getItem('currentUser'));
+          const welcomeElement = document.getElementById('welcomeUserName');
+          if (welcomeElement) {
+              welcomeElement.textContent = user?.name || 'Creator';
+          }
+      }
+
+      function updateHomePageStats() {
+          const savedIdeas = JSON.parse(localStorage.getItem('savedIdeas')) || [];
+          const scheduledPosts = JSON.parse(localStorage.getItem('scheduledPosts')) || {};
+          const scheduledDates = Object.keys(scheduledPosts).sort();
+          
+          // Only get profileScore if it has been analyzed
+          const hasAnalyzedProfile = localStorage.getItem('profileAnalyzed') === 'true';
+          const profileScore = hasAnalyzedProfile ? (localStorage.getItem('profileScore') || '0') : '0';
+          const profileTrend = hasAnalyzedProfile ? 'Based on latest analysis' : 'Upload PDF to analyze';
+
+          const statsHTML = `
+              <div class="stat-card">
+                  <div class="stat-icon">📈</div>
+                  <div class="stat-info">
+                      <h3>Post Ideas</h3>
+                      <p class="stat-number">${savedIdeas.length}</p>
+                      <p class="stat-trend">${savedIdeas.length > 0 ? `${savedIdeas.length} saved ideas` : 'No saved ideas yet'}</p>
+                  </div>
+              </div>
+              <div class="stat-card">
+                  <div class="stat-icon">📅</div>
+                  <div class="stat-info">
+                      <h3>Scheduled Posts</h3>
+                      <p class="stat-number">${scheduledDates.length}</p>
+                      <p class="stat-trend">${getNextPostInfo(scheduledDates)}</p>
+                  </div>
+              </div>
+              <div class="stat-card">
+                  <div class="stat-icon">⭐</div>
+                  <div class="stat-info">
+                      <h3>Profile Score</h3>
+                      <p class="stat-number">${profileScore}%</p>
+                      <p class="stat-trend">${profileTrend}</p>
+                  </div>
+              </div>
+          `;
+
+          const container = document.getElementById('statCardsContainer');
+          if (container) {
+              container.innerHTML = statsHTML;
+          }
+      }
+
+      function updateTasks() {
+          const tasks = TaskManager.getTasks();
+          const taskListHTML = tasks.map(task => `
+              <div class="task-item ${task.completed ? 'completed' : ''}">
+                  <input type="checkbox" 
+                         id="task-${task.id}" 
+                         ${task.completed ? 'checked' : ''} 
+                         onchange="TaskManager.toggleTask(${task.id})">
+                  <label for="task-${task.id}">${task.text}</label>
+                  <button onclick="TaskManager.deleteTask(${task.id})" 
+                          class="delete-task-btn" 
+                          title="Delete task">
+                      ×
+                  </button>
+              </div>
+          `).join('');
+
+          const taskContainer = document.getElementById('taskListContainer');
+          if (taskContainer) {
+              taskContainer.innerHTML = `
+                  <div class="task-input-group">
+                      <input type="text" 
+                             id="newTaskInput" 
+                             placeholder="Add a new task..."
+                             onkeypress="if(event.key === 'Enter') addNewTask()">
+                      <button onclick="addNewTask()" class="add-task-btn">Add</button>
+                  </div>
+                  ${taskListHTML}
+              `;
+          }
+      }
+
+      function updateRecentActivity() {
+          const activities = ActivityTracker.getActivities();
+          const activityHTML = activities.map(activity => `
+              <div class="activity-item">
+                  <div class="activity-icon">${activity.icon}</div>
+                  <div class="activity-details">
+                      <p class="activity-title">${activity.title}</p>
+                      <p class="activity-time">${ActivityTracker.formatTimeAgo(activity.timestamp)}</p>
+                  </div>
+              </div>
+          `).join('');
+
+          const container = document.getElementById('activityTimelineContainer');
+          if (container) {
+              container.innerHTML = activityHTML;
+          }
+      }
+
+      function updateQuickActions() {
+          const actionsHTML = `
+              <button class="action-card" onclick="navigateTo('idea-generation')">
+                  <div class="action-icon">💡</div>
+                  <div class="action-text">
+                      <h4>Generate New Idea</h4>
+                      <p>Get AI-powered content suggestions</p>
+                  </div>
+              </button>
+              <button class="action-card" onclick="navigateTo('post-creation')">
+                  <div class="action-icon">✍️</div>
+                  <div class="action-text">
+                      <h4>Create Post</h4>
+                      <p>Write and schedule your next post</p>
+                  </div>
+              </button>
+              <button class="action-card" onclick="navigateTo('content-calendar')">
+                  <div class="action-icon">📅</div>
+                  <div class="action-text">
+                      <h4>View Calendar</h4>
+                      <p>Manage your content schedule</p>
+                  </div>
+              </button>
+              <button class="action-card" onclick="navigateTo('profile-optimization')">
+                  <div class="action-icon">⭐</div>
+                  <div class="action-text">
+                      <h4>Optimize Profile</h4>
+                      <p>Improve your LinkedIn presence</p>
+                  </div>
+              </button>
+          `;
+
+          const container = document.getElementById('quickActionsContainer');
+          if (container) {
+              container.innerHTML = actionsHTML;
+          }
+      }
+
+      // Helper functions
+      function getIdeasTrend(ideas) {
+          const recentIdeas = ideas.filter(idea => {
+              const ideaDate = new Date(idea.timestamp || Date.now());
+              const weekAgo = new Date();
+              weekAgo.setDate(weekAgo.getDate() - 7);
+              return ideaDate >= weekAgo;
+          }).length;
+          
+          return recentIdeas > 0 ? `+${recentIdeas} this week` : 'No new ideas this week';
+      }
+
+      function getNextPostInfo(scheduledDates) {
+          if (scheduledDates.length === 0) return 'No scheduled posts';
+          
+          const nextDate = getNextPostDate(scheduledDates);
+          return nextDate ? `Next post in ${nextDate}` : 'No upcoming posts';
+      }
+
+      function getProfileScoreTrend() {
+          const previousScore = localStorage.getItem('previousProfileScore');
+          const currentScore = localStorage.getItem('profileScore');
+          
+          if (!previousScore || !currentScore) return 'First analysis';
+          
+          const difference = currentScore - previousScore;
+          return difference >= 0 ? `+${difference}% from last analysis` : `${difference}% from last analysis`;
+      }
+
+      function getRelevantTasks() {
+          // You can customize this to pull from localStorage or your backend
+          return [
+              { id: 'task1', text: 'Generate new post ideas', completed: false },
+              { id: 'task2', text: 'Schedule content for next week', completed: false },
+              { id: 'task3', text: 'Review profile optimization suggestions', completed: false }
+          ];
+      }
+
+      function getRecentActivities() {
+          // You can customize this to pull from localStorage or your backend
+          return [
+              { icon: '✍️', title: 'Generated new post ideas', time: '2 hours ago' },
+              { icon: '📅', title: 'Scheduled post for next week', time: 'Yesterday' },
+              { icon: '⭐', title: 'Updated profile score', time: '2 days ago' }
+          ];
+      }
+
+      function toggleTask(taskId) {
+          // Implement task toggling logic here
+          console.log(`Task ${taskId} toggled`);
+      }
+
+      // Add this to your existing event listeners
+      document.addEventListener('DOMContentLoaded', function() {
+          // ... existing initialization code ...
+          initializeHomePage();
+      });
+
+      // Update the navigateTo function to refresh home page when returning to it
+      function navigateTo(section) {
+          document.querySelectorAll('.nav-button').forEach(btn => {
+              btn.classList.remove('active');
+              if (btn.getAttribute('data-target') === section) {
+                  btn.classList.add('active');
+              }
+          });
+
+          document.querySelectorAll('.content-section').forEach(section => {
+              section.classList.remove('active');
+          });
+          
+          const targetSection = document.getElementById(section);
+          targetSection.classList.add('active');
+          
+          // Refresh home page data when navigating to it
+          if (section === 'home') {
+              initializeHomePage();
+          }
+      }
+
+      // Activity and Task Management Systems
+      const STORAGE_KEYS = {
+          getTasks: (userId) => `user_${userId}_tasks`,
+          getActivities: (userId) => `user_${userId}_activities`,
+          getSavedIdeas: (userId) => `user_${userId}_savedIdeas`,
+          getScheduledPosts: (userId) => `user_${userId}_scheduledPosts`,
+          getProfileScore: (userId) => `user_${userId}_profileScore`,
+          getPreviousProfileScore: (userId) => `user_${userId}_previousProfileScore`,
+          getLinkedInPreferences: (userId) => `user_${userId}_linkedinPreferences`,
+          getLinkedInSetupComplete: (userId) => `user_${userId}_linkedinSetupComplete`
+      };
+
+      // Activity Tracking System
+      class ActivityTracker {
+          static addActivity(action, details = '') {
+              const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+              if (!currentUser) return;
+
+              const activities = this.getActivities();
+              const newActivity = {
+                  id: Date.now(),
+                  icon: this.getActivityIcon(action),
+                  title: this.getActivityTitle(action, details),
+                  timestamp: new Date().toISOString(),
+                  type: action
+              };
+              
+              activities.unshift(newActivity);
+              if (activities.length > 10) activities.pop();
+              
+              localStorage.setItem(STORAGE_KEYS.getActivities(currentUser.id), JSON.stringify(activities));
+              updateRecentActivity();
+          }
+
+          static getActivities() {
+              const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+              if (!currentUser) return [];
+              return JSON.parse(localStorage.getItem(STORAGE_KEYS.getActivities(currentUser.id))) || [];
+          }
+
+          static getActivityIcon(type) {
+              const icons = {
+                  'idea_generated': '💡',
+                  'idea_saved': '💾',
+                  'post_created': '✍️',
+                  'post_scheduled': '📅',
+                  'profile_analyzed': '📊',
+                  'task_completed': '✅',
+                  'task_added': '📝'
+              };
+              return icons[type] || '📌';
+          }
+
+          static getActivityTitle(type, details) {
+              const titles = {
+                  'idea_generated': 'Generated new post ideas',
+                  'idea_saved': 'Saved a new idea',
+                  'post_created': 'Created a new post',
+                  'post_scheduled': `Scheduled post for ${details}`,
+                  'profile_analyzed': 'Updated profile analysis',
+                  'task_completed': `Completed task: ${details}`,
+                  'task_added': `Added new task: ${details}`
+              };
+              return titles[type] || type;
+          }
+
+          static formatTimeAgo(timestamp) {
+              const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
+              
+              const intervals = {
+                  year: 31536000,
+                  month: 2592000,
+                  week: 604800,
+                  day: 86400,
+                  hour: 3600,
+                  minute: 60
+              };
+
+              for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+                  const interval = Math.floor(seconds / secondsInUnit);
+                  if (interval >= 1) {
+                      return interval === 1 ? `1 ${unit} ago` : `${interval} ${unit}s ago`;
+                  }
+              }
+              
+              return 'Just now';
+          }
+      }
+
+      // Task Management System
+      class TaskManager {
+          static addTask(text) {
+              const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+              if (!currentUser) return;
+
+              const tasks = this.getTasks();
+              const newTask = {
+                  id: Date.now(),
+                  text: text,
+                  completed: false,
+                  createdAt: new Date().toISOString()
+              };
+              
+              tasks.push(newTask);
+              localStorage.setItem(STORAGE_KEYS.getTasks(currentUser.id), JSON.stringify(tasks));
+              ActivityTracker.addActivity('task_added', text);
+              updateTasks();
+          }
+
+          static getTasks() {
+              const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+              if (!currentUser) return [];
+              return JSON.parse(localStorage.getItem(STORAGE_KEYS.getTasks(currentUser.id))) || [];
+          }
+
+          static toggleTask(taskId) {
+              const tasks = this.getTasks();
+              const task = tasks.find(t => t.id === parseInt(taskId));
+              if (task) {
+                  task.completed = !task.completed;
+                  if (task.completed) {
+                      ActivityTracker.addActivity('task_completed', task.text);
+                  }
+                  localStorage.setItem(STORAGE_KEYS.getTasks(currentUser.id), JSON.stringify(tasks));
+                  updateTasks();
+              }
+          }
+
+          static deleteTask(taskId) {
+              const tasks = this.getTasks().filter(t => t.id !== parseInt(taskId));
+              localStorage.setItem(STORAGE_KEYS.getTasks(currentUser.id), JSON.stringify(tasks));
+              updateTasks();
+          }
+      }
+
+      // Function to add new task
+      function addNewTask() {
+          const input = document.getElementById('newTaskInput');
+          const text = input.value.trim();
+          
+          if (text) {
+              TaskManager.addTask(text);
+              input.value = ''; // Clear input
+          }
+      }
+
+      // Add user-specific storage keys
+      const getUserStorageKey = (key) => {
+          const userId = sessionStorage.getItem('currentUser')?.id || 'default';
+          return `user_${userId}_${key}`;
+      };
+
+      function deleteAllUsers() {
+          // Clear session storage
+          sessionStorage.clear();
+          
+          // Clear all user-related data from local storage
+          const userKeys = [
+              'linkedinPreferences',
+              'linkedinSetupComplete',
+              'savedIdeas',
+              'scheduledPosts',
+              'profileScore',
+              'previousProfileScore',
+              'tasks',
+              'activities'
+          ];
+          
+          userKeys.forEach(key => localStorage.removeItem(key));
+          
+          // Redirect to auth page
+          window.location.href = 'auth.html';
+      }
+    </script>
+  </body>
+</html>
